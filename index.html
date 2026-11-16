@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1720">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>مدیریت لیگ فوتبال</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root{--bg:#0f1720;--card:#18232f;--card2:#1f2e3d;--line:#2b3c4e;--tx:#e8eef4;--mut:#8da0b3;--ac:#3ddc84;--warn:#f5b942;--red:#ef5b5b;--blue:#4ea1f3}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Vazirmatn,Tahoma,"Segoe UI",sans-serif;font-size:15px;line-height:1.6}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);font-weight:700;font-size:18px;display:flex;align-items:center;gap:10px}
+header img{width:28px;height:28px;border-radius:7px}
+main{padding:12px 12px calc(84px + env(safe-area-inset-bottom));max-width:720px;margin:auto}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav button{flex:1;background:none;border:0;color:var(--mut);padding:10px 2px 8px;font:inherit;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav button span{font-size:20px}
+nav button.on{color:var(--ac);font-weight:700;box-shadow:inset 0 3px 0 var(--ac)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+h3{margin:4px 2px 10px;font-size:15px;color:var(--mut)}
+label{display:block;font-size:12px;color:var(--mut);margin:8px 0 3px}
+input,select{width:100%;background:var(--card2);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;min-height:42px}
+input:focus,select:focus{outline:2px solid var(--ac);outline-offset:0}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.btn{background:var(--ac);color:#06210f;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;min-height:44px}
+.btn.sec{background:var(--card2);color:var(--tx);border:1px solid var(--line)}
+.btn.dng{background:transparent;color:var(--red);border:1px solid var(--red)}
+.btn.sm{padding:4px 10px;min-height:32px;font-size:13px}
+.tname{font-size:17px;font-weight:700;margin-bottom:2px}
+.tag{display:inline-block;border-radius:20px;padding:1px 10px;font-size:12px;border:1px solid var(--line);color:var(--mut)}
+.st-live{color:var(--warn);border-color:var(--warn)}.st-finished{color:var(--ac);border-color:var(--ac)}.st-cancelled{color:var(--red);border-color:var(--red)}
+details.m{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+details.m summary{list-style:none;cursor:pointer;padding:12px;display:flex;align-items:center;gap:8px}
+details.m summary::-webkit-details-marker{display:none}
+.vs{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700}
+.vs .tm{flex:1;text-align:center;font-size:14px}
+.score{background:var(--card2);border-radius:8px;padding:2px 12px;min-width:64px;text-align:center;font-size:17px;direction:ltr}
+.mbody{padding:0 12px 12px;border-top:1px solid var(--line)}
+.wk{margin:16px 4px 8px;font-weight:700;color:var(--ac)}
+.rest{font-weight:400;color:var(--mut);font-size:12px}
+.ev{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:8px;padding:6px 10px;margin-top:6px;font-size:14px}
+.ev b{min-width:42px;direction:ltr;color:var(--warn)}.ev span{flex:1}
+.ev button{background:none;border:0;color:var(--red);font-size:18px;cursor:pointer}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;text-align:center}
+th,td{padding:9px 4px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mut);font-weight:400;font-size:12px}
+td.n{text-align:right;font-weight:700}
+tr.top td{background:rgba(61,220,132,.08)}
+td.pt{font-weight:700;color:var(--ac);font-size:16px}
+.note{color:var(--mut);font-size:13px;margin:8px 2px}
+#toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ac);color:#06210f;padding:8px 18px;border-radius:20px;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><img src="icon.svg" alt=""><span>مدیریت لیگ فوتبال</span></header>
+<main id="app"></main>
+<nav id="nav"></nav>
+<div id="toast"></div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+<script>
+const KEY='football_league_v1';
+const IDS=['A','B','C','D','E'];
+const SCHEDULE=[
+ [1,'E','B'],[1,'C','D'],[2,'E','A'],[2,'B','C'],[3,'D','A'],[3,'C','E'],
+ [4,'A','C'],[4,'B','D'],[5,'A','B'],[5,'D','E']
+];
+const STATUS={scheduled:'برنامه‌ریزی‌شده',live:'در حال برگزاری',finished:'تمام‌شده',cancelled:'لغو شده'};
+const EVT={goal:'⚽ گل',penalty:'🎯 پنالتی',yellow:'🟨 کارت زرد',red:'🟥 کارت قرمز',sub:'🔁 تعویض'};
+const TABS=[['teams','تیم‌ها','👥'],['matches','بازی‌ها','📅'],['table','رده‌بندی','🏆'],['backup','پشتیبان‌گیری','💾']];
+
+function defaults(){
+  const names={A:'یوسفلو',B:'قارتال',C:'ارسباران',D:'شهریار',E:'تراکتور'};
+  const teams={};IDS.forEach(i=>teams[i]={name:names[i],coach:'',captain:'',stadium:'',phone:''});
+  const matches=SCHEDULE.map(([w,h,a],k)=>({id:'m'+(k+1),week:w,home:h,away:a,date:'',time:'',referee:'',stadium:'',hg:'',ag:'',status:'scheduled',events:[]}));
+  return {teams,matches};
+}
+let S=load(),tab='teams',openSet=new Set();
+function valid(d){return d&&d.teams&&Array.isArray(d.matches)&&IDS.every(i=>d.teams[i])&&d.matches.length===10}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(valid(d))return d}catch(e){}return defaults()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('خطا در ذخیره‌سازی')}}
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fa=n=>Number(n).toLocaleString('fa-IR');
+const T=id=>S.teams[id].name||id;
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),1800)}
+
+function render(){
+  document.getElementById('nav').innerHTML=TABS.map(([k,n,i])=>`<button class="${k===tab?'on':''}" data-tab="${k}"><span>${i}</span>${n}</button>`).join('');
+  const app=document.getElementById('app');
+  app.innerHTML={teams:vTeams,matches:vMatches,table:vTable,backup:vBackup}[tab]();
+}
+
+function vTeams(){
+  return IDS.map(id=>{const t=S.teams[id];
+    const f=(k,l,type='text')=>`<label>${l}</label><input type="${type}" ${type==='tel'?'inputmode="tel"':''} value="${esc(t[k])}" data-t="${id}" data-f="${k}">`;
+    return `<div class="card"><div class="tname">${esc(t.name)}</div>${f('name','نام تیم')}${f('coach','مربی')}${f('captain','کاپیتان')}${f('stadium','ورزشگاه خانگی')}${f('phone','شماره تماس','tel')}</div>`}).join('');
+}
+
+function vMatches(){
+  let out='';
+  for(let w=1;w<=5;w++){
+    const ms=S.matches.filter(m=>m.week===w);
+    const playing=ms.flatMap(m=>[m.home,m.away]);
+    const rest=IDS.find(i=>!playing.includes(i));
+    out+=`<div class="wk">هفته ${fa(w)} <span class="rest">— استراحت: ${esc(T(rest))}</span></div>`+ms.map(matchCard).join('');
+  }
+  return out;
+}
+
+function matchCard(m){
+  const sc=(m.hg===''&&m.ag==='')?'—':`${fa(m.ag===''?0:m.ag)} - ${fa(m.hg===''?0:m.hg)}`;
+  const f=(k,l,type='text',ph='')=>`<div><label>${l}</label><input type="${type}" value="${esc(m[k])}" placeholder="${esc(ph)}" data-m="${m.id}" data-f="${k}" ${type==='number'?'min="0" inputmode="numeric"':''}></div>`;
+  const opt=(o,sel)=>Object.entries(o).map(([k,v])=>`<option value="${k}" ${k===sel?'selected':''}>${v}</option>`).join('');
+  const evs=[...m.events].sort((a,b)=>a.min-b.min).map(e=>`<div class="ev"><b>${esc(e.min)}'</b><span>${EVT[e.type]} — ${esc(e.player||'نامشخص')} <small style="color:var(--mut)">(${esc(T(e.team==='h'?m.home:m.away))})</small></span><button data-del="${m.id}|${e.id}" aria-label="حذف">✕</button></div>`).join('');
+  return `<details class="m" data-open="${m.id}" ${openSet.has(m.id)?'open':''}>
+  <summary><div class="vs"><span class="tm">${esc(T(m.home))}</span><span class="score">${sc}</span><span class="tm">${esc(T(m.away))}</span></div><span class="tag st-${m.status}">${STATUS[m.status]}</span></summary>
+  <div class="mbody">
+   <label>وضعیت بازی</label><select data-m="${m.id}" data-f="status">${opt(STATUS,m.status)}</select>
+   <div class="row">${f('date','تاریخ','text','مثلاً ۱۴۰۵/۰۸/۲۵')}${f('time','ساعت','time')}</div>
+   <div class="row">${f('referee','داور')}${f('stadium','ورزشگاه','text',S.teams[m.home].stadium)}</div>
+   <div class="row">${f('hg','گل ' + esc(T(m.home))+' (میزبان)','number')}${f('ag','گل '+esc(T(m.away))+' (مهمان)','number')}</div>
+   <h3 style="margin-top:16px">رویدادها</h3>${evs||'<div class="note">رویدادی ثبت نشده است.</div>'}
+   <div class="card" style="margin:10px 0 0;background:var(--card2)" data-evform="${m.id}">
+    <div class="row"><div><label>نوع</label><select name="type">${opt(EVT,'goal')}</select></div><div><label>دقیقه</label><input name="min" type="number" min="0" max="130" inputmode="numeric"></div></div>
+    <div class="row"><div><label>تیم</label><select name="team"><option value="h">${esc(T(m.home))}</option><option value="a">${esc(T(m.away))}</option></select></div><div><label>نام بازیکن</label><input name="player" type="text"></div></div>
+    <button class="btn" style="width:100%;margin-top:10px" data-addev="${m.id}">افزودن رویداد</button>
+   </div>
+  </div></details>`;
+}
+
+function standings(){
+  const r={};IDS.forEach(i=>r[i]={id:i,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+  S.matches.filter(m=>m.status==='finished').forEach(m=>{
+    const h=+m.hg||0,a=+m.ag||0,H=r[m.home],A=r[m.away];
+    H.p++;A.p++;H.gf+=h;H.ga+=a;A.gf+=a;A.ga+=h;
+    if(h>a){H.w++;A.l++;H.pts+=3}else if(h<a){A.w++;H.l++;A.pts+=3}else{H.d++;A.d++;H.pts++;A.pts++}
+  });
+  return Object.values(r).sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||T(x.id).localeCompare(T(y.id),'fa'));
+}
+function vTable(){
+  const rows=standings().map((t,i)=>`<tr class="${i===0&&t.p?'top':''}"><td>${fa(i+1)}</td><td class="n">${esc(T(t.id))}</td><td>${fa(t.p)}</td><td>${fa(t.w)}</td><td>${fa(t.d)}</td><td>${fa(t.l)}</td><td>${fa(t.gf)}</td><td>${fa(t.ga)}</td><td style="direction:ltr">${fa(t.gf-t.ga)}</td><td class="pt">${fa(t.pts)}</td></tr>`).join('');
+  const n=S.matches.filter(m=>m.status==='finished').length;
+  return `<div class="card tbl"><table><thead><tr><th>#</th><th style="text-align:right">تیم</th><th>بازی</th><th>برد</th><th>مس</th><th>باخت</th><th>گ‌زده</th><th>گ‌خورده</th><th>تفاضل</th><th>امتیاز</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="note">فقط بازی‌های «تمام‌شده» محاسبه می‌شوند (${fa(n)} از ${fa(10)} بازی). برد ۳ امتیاز، مساوی ۱ امتیاز. ترتیب: امتیاز، تفاضل گل، گل زده.</div>`;
+}
+
+function vBackup(){
+  return `<div class="card"><h3>خروجی گرفتن</h3><div class="note">تمام اطلاعات تیم‌ها و بازی‌ها در یک فایل JSON ذخیره می‌شود.</div><button class="btn" style="width:100%" data-act="export">دانلود فایل پشتیبان</button></div>
+  <div class="card"><h3>بازیابی</h3><div class="note">با انتخاب فایل پشتیبان، اطلاعات فعلی جایگزین می‌شود.</div><button class="btn sec" style="width:100%" data-act="import">انتخاب فایل برای بازیابی</button></div>
+  <div class="card"><h3>بازنشانی</h3><div class="note">همه اطلاعات پاک و برنامه به حالت اولیه برمی‌گردد.</div><button class="btn dng" style="width:100%" data-act="reset">بازنشانی کامل</button></div>`;
+}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-tab],[data-addev],[data-del],[data-act]');if(!b)return;
+  if(b.dataset.tab){tab=b.dataset.tab;render();window.scrollTo(0,0);return}
+  if(b.dataset.addev){
+    const id=b.dataset.addev,box=b.closest('[data-evform]'),g=n=>box.querySelector(`[name=${n}]`).value;
+    const min=g('min');if(min===''){toast('دقیقه را وارد کنید');return}
+    S.matches.find(m=>m.id===id).events.push({id:Date.now().toString(36),type:g('type'),min:+min,team:g('team'),player:g('player').trim()});
+    save();openSet.add(id);render();toast('رویداد ثبت شد');return
+  }
+  if(b.dataset.del){
+    const [mid,eid]=b.dataset.del.split('|'),m=S.matches.find(x=>x.id===mid);
+    m.events=m.events.filter(x=>x.id!==eid);save();openSet.add(mid);render();return
+  }
+  const a=b.dataset.act;
+  if(a==='export'){
+    const blob=new Blob([JSON.stringify({app:'football-league',version:1,exported:new Date().toISOString(),data:S},null,2)],{type:'application/json'});
+    const u=URL.createObjectURL(blob),l=document.createElement('a');
+    l.href=u;l.download='league-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(l);l.click();l.remove();
+    setTimeout(()=>URL.revokeObjectURL(u),1000);toast('فایل پشتیبان ساخته شد')
+  }
+  if(a==='import')document.getElementById('file').click();
+  if(a==='reset'&&confirm('همه اطلاعات پاک شود؟')){S=defaults();save();openSet.clear();render();toast('بازنشانی شد')}
+});
+
+document.addEventListener('change',e=>{
+  const el=e.target;
+  if(el.id==='file'){
+    const f=el.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{try{
+      const j=JSON.parse(r.result),d=j.data||j;
+      if(!valid(d))throw 0;
+      if(confirm('اطلاعات فعلی با فایل پشتیبان جایگزین شود؟')){S=d;save();render();toast('بازیابی انجام شد')}
+    }catch(x){toast('فایل پشتیبان معتبر نیست')}el.value=''};
+    r.readAsText(f);return
+  }
+  if(el.dataset.t){S.teams[el.dataset.t][el.dataset.f]=el.value.trim();save();if(el.dataset.f==='name')render();return}
+  if(el.dataset.m){
+    const m=S.matches.find(x=>x.id===el.dataset.m),f=el.dataset.f;
+    m[f]=(f==='hg'||f==='ag')?(el.value===''?'':Math.max(0,parseInt(el.value)||0)):el.value.trim();
+    save();openSet.add(m.id);
+    if(['hg','ag','status'].includes(f))render();
+  }
+});
+
+document.addEventListener('toggle',e=>{
+  const d=e.target;if(d.dataset&&d.dataset.open){d.open?openSet.add(d.dataset.open):openSet.delete(d.dataset.open)}
+},true);
+
+render();
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
